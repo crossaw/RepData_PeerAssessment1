@@ -1,0 +1,96 @@
+---
+title: "Reproducible Research: Peer Assessment 1"
+output: 
+  html_document:
+    keep_md: true
+---
+
+This is the first project of the on-line Reproducible Research class offered by Johns Hoppkins University through coursera.  This submission was completed by Arnold Cross.  Specific instructions corresponding to the headings below can be found in the README.Rmd file which accompanies this file.
+
+## Loading and preprocessing the data
+```{r}
+zipped <- unzip("activity.zip")
+act <- read.csv("activity.csv")
+dum <- file.remove(zipped)
+str(act)
+```
+I didn't need any preprocessing.
+
+## What is mean total number of steps taken per day?
+```{r}
+stepsPerDay <- tapply(act[,"steps"], act[,"date"], "sum")
+hist(stepsPerDay, breaks=20, main="Histogram of Steps Per Day",
+                                                        sub="Before imputing data.")
+```
+From a visual assessment of the historgram, it seems that the subject usually takes about 11,000 steps per day.
+```{r}
+cat( "Mean:    ", firstMean   <- mean  (stepsPerDay, na.rm=T), "\n",
+     "Median:  ", firstMedian <- median(stepsPerDay, na.rm=T), sep="" )
+```
+
+## What is the average daily activity pattern?
+```{r}
+av <- tapply(act[,"steps"], act[,"interval"], "mean", na.rm=T)
+uniqInterval <- unique(act[,"interval"])        # integer vector of interval stamps
+inteTime <- paste(uniqInterval %/% 100, ":", uniqInterval %%  100, sep="")
+inteTime <- strptime( inteTime, "%H:%M" )       # Posix vector of interval stamps
+plot(inteTime, av, type="l",
+               main="Average Steps Taken in Daily Five Minute Intervals",
+                                                   ylab="Steps", xlab="Time of Day")
+busyInterval <- format(inteTime[av==max(av)], "%H:%M")
+cat( "The most walked time is ", busyInterval, ".\n", sep="" )
+```
+
+## Imputing missing values
+Taking the instructions literally, I looked for rows with NA in any column.
+```{r}
+sum(apply( is.na(act), 1, any ))
+```
+Since the "date" and "interval" columns identify time increments for data collection, they should not have NA's.  The only NA's should be in the measured data, which is the "steps" column.  Checking just that column,
+```{r}
+sum( nact <- is.na(act[,"steps"]) )
+```
+I got the same number of NA's.
+
+The av vector has average values for all time intervals in a day.  Using the logical vector, nact, as a mask and act[,"interval"] as a key, I grab the value from av wherever a "steps" value needs to be imputed.
+```{r}
+newact <- act
+newact[nact, "steps"] <- av[ as.character(act[,"interval"]) ][nact]
+stepsPerDay <- tapply(newact[,"steps"], newact[,"date"], "sum")
+hist(stepsPerDay, breaks=20, main="Histogram of Steps Per Day",
+                                                        sub="After imputing data.")
+cat( "Mean:    ", newMean   <- mean  (stepsPerDay, na.rm=T), "\n",
+     "Median:  ", newMedian <- median(stepsPerDay, na.rm=T), sep="" )
+incOrDec <- c("increase", "decrease")
+cat("Imputing the data caused the mean to ", incOrDec[2-(newMean>firstMean)],
+    " by ", abs(1-newMean/firstMean)*100, "%,
+    and it caused the median to ", incOrDec[2-(newMedian>firstMedian)], " by ",
+    abs(1-newMedian/firstMedian)*100, "%.\n\n", sep="")
+```
+The imputed data had no effect on the mean, because I used mean values, and each date either had all NA's or all good values.  That each date either had all NA's or all good values can be seen by counting the date values from rows that do not have NA step values.
+```{r}
+table(act[!is.na(act[,"steps"]),"date"])
+```
+We see that every date level has either zero counts or 288 counts.
+
+The imputed data caused the mean to become the median.  From the above observation, we know that some dates took on the mean value as their total steps value.  That one of those dates ended up as the median date indicates that the data was well balanced around its mean.
+
+## Are there differences in activity patterns between weekdays and weekends?
+```{r}
+newact["ww"] <- factor(ifelse(
+                   substr(weekdays( as.POSIXct(newact[,"date"]) ), 1, 1) == "S",
+                   "weekend", "weekday" ))
+wav <- tapply(newact[,"steps"], newact[,c("interval","ww")], "mean") #2 dim arr
+par( mfrow=c(2,1) )
+plot(inteTime, wav[,"weekend"], type="l", main="Weekend",
+                                                  ylab="Steps", xlab="Time of Day")
+plot(inteTime, wav[,"weekday"], type="l", main="Weekday",
+                                                  ylab="Steps", xlab="Time of Day")
+```
+
+To answer the question, the following plot shows the differences between weekend steps and weekday steps, with positive values representing increased activity on the weekends.
+```{r}
+plot(inteTime, wav[,"weekend"]-wav[,"weekday"], type="l",
+        main = "Difference Between Weekend and Weekday", ylab="Steps",
+                                                         xlab="Time of Day")
+```
