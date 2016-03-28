@@ -27,7 +27,8 @@ hist(stepsPerDay, breaks=20, main="Histogram of Steps Per Day",
                                                         sub="Before imputing data.")
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-2-1.png)
+![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2-1.png)
+
 From a visual assessment of the historgram, it seems that the subject usually takes about 11,000 steps per day.
 
 ```r
@@ -52,7 +53,7 @@ plot(inteTime, av, type="l",
                                                    ylab="Steps", xlab="Time of Day")
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-4-1.png)
+![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4-1.png)
 
 ```r
 busyInterval <- format(inteTime[av==max(av)], "%H:%M")
@@ -94,7 +95,7 @@ hist(stepsPerDay, breaks=20, main="Histogram of Steps Per Day",
                                                         sub="After imputing data.")
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-7-1.png)
+![plot of chunk unnamed-chunk-7](figure/unnamed-chunk-7-1.png)
 
 ```r
 cat( "Mean:    ", newMean   <- mean  (stepsPerDay, na.rm=T), "\n",
@@ -167,7 +168,7 @@ plot(inteTime, wav[,"weekday"], type="l", main="Weekday",
                                                   ylab="Steps", xlab="Time of Day")
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-9-1.png)
+![plot of chunk unnamed-chunk-9](figure/unnamed-chunk-9-1.png)
 
 To answer the question, the following plot shows the differences between weekend steps and weekday steps, with positive values representing increased activity on the weekends.
 
@@ -177,4 +178,4 @@ plot(inteTime, wav[,"weekend"]-wav[,"weekday"], type="l",
                                                          xlab="Time of Day")
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-10-1.png)
+![plot of chunk unnamed-chunk-10](figure/unnamed-chunk-10-1.png)

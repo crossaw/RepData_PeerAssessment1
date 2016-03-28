@@ -1,9 +1,4 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
 This is the first project of the on-line Reproducible Research class offered by Johns Hoppkins University through coursera.  This submission was completed by Arnold Cross.  Specific instructions corresponding to the headings below can be found in the README.Rmd file which accompanies this file.
 
@@ -22,6 +17,7 @@ stepsPerDay <- tapply(act[,"steps"], act[,"date"], "sum")
 hist(stepsPerDay, breaks=20, main="Histogram of Steps Per Day",
                                                         sub="Before imputing data.")
 ```
+
 From a visual assessment of the historgram, it seems that the subject usually takes about 11,000 steps per day.
 ```{r}
 cat( "Mean:    ", firstMean   <- mean  (stepsPerDay, na.rm=T), "\n",
